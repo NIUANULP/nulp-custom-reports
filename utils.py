@@ -7,182 +7,6 @@ import os
 
 load_dotenv()
 
-def get_personal_info(user_id):
-
-    if user_id:
-
-        #1. Loading ENV.
-        CLUSTER_LINK = os.environ.get('CLUSTER_LINK')
-        cluster = Cluster([f'{CLUSTER_LINK}'],connect_timeout=20,load_balancing_policy=RoundRobinPolicy(),reconnection_policy=ExponentialReconnectionPolicy(max_attempts=10,max_delay=20,base_delay=10))
-
-        USER_INFO_KEYSPACE = os.environ.get('USER_INFO_KEYSPACE')
-        USER_INFO_TABLE = os.environ.get('USER_INFO_TABLE')
-
-        session = cluster.connect()
-        session.default_timeout = 60
-
-        #2. Setting Keyspaces.
-        session.set_keyspace(USER_INFO_KEYSPACE)
-        
-        query = f"SELECT firstname, lastname, email, maskedemail, maskedphone, phone FROM {USER_INFO_KEYSPACE}.{USER_INFO_TABLE} WHERE userid = '{user_id}' ALLOW FILTERING;"
-        query_result = session.execute(query=query)
-        
-        user_info = {'username':'','email':'','maskedemail':'','maskedphone':'','phone':''}
-        
-        try:
-            if query_result:
-                for i in query_result:
-                    try:
-                        user_info['username'] = i[0] + i[1]
-                        user_info['email'] = i[2]
-                        user_info['maskedemail'] = i[3]
-                        user_info['maskedphone'] = i[4]
-                        user_info['phone'] = i[5]
-                    
-                        return user_info
-                    except:
-                        return user_info
-            else:
-                return user_info
-        except:
-            return user_info
-
-    else:
-        return 'No userid passed.'
-
-
-# Fetch Course Name.
-
-def get_course_name(courseid,batchid):
-    
-    CLUSTER_LINK = os.environ.get('CLUSTER_LINK')
-    COURSE_KEYSPACE = os.environ.get('COURSE_KEYSPACE')
-    COURSE_TABLE = os.environ.get('COURSE_TABLE')
-    
-    if courseid and batchid:
-        query = f"""SELECT name FROM {COURSE_KEYSPACE}.{COURSE_TABLE} WHERE courseid = '{courseid}' and batchid = '{batchid}' ALLOW FILTERING;"""
-    else:
-        query = f"""SELECT name FROM {COURSE_KEYSPACE}.{COURSE_TABLE} WHERE courseid = '{courseid}' ALLOW FILTERING;"""
-    
-    cluster = Cluster([f'{CLUSTER_LINK}'],connect_timeout=20,load_balancing_policy=RoundRobinPolicy(),reconnection_policy=ExponentialReconnectionPolicy(max_attempts=10,max_delay=20,base_delay=10))
-    session = cluster.connect()
-    session.default_timeout = 60
-
-    # 2.Setting Keyspaces.
-    session.set_keyspace(COURSE_KEYSPACE)
-
-    query_result = session.execute(query=query)
-    course_name = ''
-    try:
-        if query_result:
-            for i in query_result[:1]:
-                try:
-                    course_name = i[0]
-                    return course_name
-                except:
-                    course_name = ''
-                    return course_name
-        else:
-            course_name = ''
-            return course_name
-    except:
-        course_name = ''
-        return course_name
-
-
-# Batch start and end date.
-
-def batch_start_date(courseid,batchid):
-    CLUSTER_LINK = os.environ.get('CLUSTER_LINK')
-    #KEYSPACE= os.environ.get('KEYSPACE')
-    
-
-
-    COURSE_KEYSPACE = os.environ.get('COURSE_KEYSPACE')
-    COURSE_TABLE = os.environ.get('COURSE_TABLE')
-    CLUSTER_LINK = os.environ.get('CLUSTER_LINK')
-
-    cluster = Cluster([f'{CLUSTER_LINK}'],connect_timeout=20,load_balancing_policy=RoundRobinPolicy(),reconnection_policy=ExponentialReconnectionPolicy(max_attempts=10,max_delay=20,base_delay=10))
-    session = cluster.connect()
-    session.default_timeout = 60
-
-    # 2.Setting Keyspaces.
-    session.set_keyspace(COURSE_KEYSPACE)
-
-    
-    if courseid and batchid:
-        query = f"""SELECT start_date FROM {COURSE_KEYSPACE}.{COURSE_TABLE} WHERE courseid = '{courseid}' and batchid = '{batchid}' ALLOW FILTERING;"""
-    else:
-        query = f"""SELECT start_date FROM {COURSE_KEYSPACE}.{COURSE_TABLE} WHERE courseid = '{courseid}' ALLOW FILTERING;"""
-    
-    #print('Query_date:-',query)
-    query_result = session.execute(query=query)
-    try:
-            if query_result:
-                for i in query_result[:1]:
-                    try:
-                        start_date = i[0]
-                        return start_date
-                    except:
-                        start_date = ''
-                        return start_date
-            else:
-                start_date = ''
-                return start_date
-    except:
-        start_date = ''
-        return start_date
-    
-# End Date.
-def batch_end_date(courseid,batchid):
-    CLUSTER_LINK = os.environ.get('CLUSTER_LINK')
-
-    COURSE_KEYSPACE = os.environ.get('COURSE_KEYSPACE')
-    COURSE_TABLE = os.environ.get('COURSE_TABLE')
-    CLUSTER_LINK = os.environ.get('CLUSTER_LINK')
-
-    cluster = Cluster([f'{CLUSTER_LINK}'],connect_timeout=20,load_balancing_policy=RoundRobinPolicy(),reconnection_policy=ExponentialReconnectionPolicy(max_attempts=10,max_delay=20,base_delay=10))
-    session = cluster.connect()
-    session.default_timeout = 60
-
-    # 2.Setting Keyspaces.
-    session.set_keyspace(COURSE_KEYSPACE)
-
-    
-    if courseid and batchid:
-        query = f"""SELECT end_date FROM {COURSE_KEYSPACE}.{COURSE_TABLE} WHERE courseid = '{courseid}' and batchid = '{batchid}' ALLOW FILTERING;"""
-    else:
-        query = f"""SELECT end_date FROM {COURSE_KEYSPACE}.{COURSE_TABLE} WHERE courseid = '{courseid}' ALLOW FILTERING;"""
-
-    query_result = session.execute(query=query)
-    try:
-            if query_result:
-                for i in query_result[:1]:
-                    try:
-                        end_date = i[0]
-                        session.shutdown()
-                        cluster.shutdown()
-                        return end_date
-                    except:
-                        session.shutdown()
-                        cluster.shutdown()
-                        end_date = ''
-                        return end_date
-            else:
-                session.shutdown()
-                cluster.shutdown()
-                end_date = ''
-                return end_date
-    except:
-        session.shutdown()
-        cluster.shutdown()
-        end_date = ''
-        return end_date
-    
-    finally:
-        session.shutdown()
-        cluster.shutdown()
-
 # Get all personal info.
 def get_all_personal_info():
     
@@ -233,11 +57,7 @@ def get_all_batch_info(courseid,batchid):
         
         return query_result_batchinfo
 
-    
-
-
 # Search Filter (username).
-
 def filter_query_dict(input_list, search_value):
     filtered_list = []
     for item in input_list:
@@ -247,7 +67,6 @@ def filter_query_dict(input_list, search_value):
                     filtered_list.append(item)
                     break 
     return filtered_list
-
 
 def temp_response():
     # Temp dummy response.
