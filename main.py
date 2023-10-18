@@ -6,16 +6,15 @@ from fastapi import Query
 from cassandra.policies import RoundRobinPolicy,DCAwareRoundRobinPolicy, ExponentialReconnectionPolicy
 from cassandra.cluster import Cluster
 from collections import defaultdict
+from fastapi.middleware.cors import CORSMiddleware
+
 
 # Loading from utils.
 
-from utils import get_personal_info,get_course_name
-from utils import temp_response,batch_start_date, batch_end_date
 from utils import filter_query_dict, get_all_personal_info, get_all_batch_info
 
 import os
 import uvicorn
-
 import pandas as pd
 from tqdm import tqdm
 
@@ -24,12 +23,25 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-# 1. Initialise fast.
 app = FastAPI()
+
+origins = [
+    "*",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 add_pagination(app)
 
 @app.get("/course/v1/progress/reports/{courseid}", status_code=200)
 async def get_user(
+
     courseid: str,
     page_number: int = Query(default=0, description="For pagination"),
     batchid: str = Query(default=None, description="Batch ID (optional)"),
@@ -59,10 +71,6 @@ async def get_user(
     temporary_list = []
 
     # Define the prepared statements
-    prepared_query_all = session.prepare(
-        f"SELECT userid, enrolled_date, courseid, batchid, progress, completionpercentage, "
-        f"completedon, issued_certificates, status FROM {KEYSPACE}.{TABLE};"
-    )
 
     prepared_query_courseid = session.prepare(
         f"SELECT userid, enrolled_date, courseid, batchid, progress, completionpercentage, "
@@ -74,10 +82,6 @@ async def get_user(
         f"completedon, issued_certificates, status FROM {KEYSPACE}.{TABLE} WHERE courseid = ? AND batchid = ? ALLOW FILTERING;"
     )
 
-    prepared_query_all = session.prepare(
-        f"SELECT userid, enrolled_date, courseid, batchid, progress, completionpercentage, "
-        f"completedon, issued_certificates, status FROM {KEYSPACE}.{TABLE} WHERE courseid = ? AND batchid = ? ALLOW FILTERING;"
-    )
     if not courseid:
         return 'please pass inputs !!'
 
@@ -165,13 +169,24 @@ async def get_user(
             limit_2 = end_index
 
         result_dict = {
-            "result": {
-                "total_pages": total_pages,
-                "current_page": page_number,
-                "items_per_page": limit,
-                "total_items": total_items,
-                "content": []
-            }
+            "id": "api.content.read",
+            "ver": "1.0",
+            "ts": "2023-10-17T09:01:10.366Z",
+            "params": {
+                "resmsgid": "b74027e0-6ccb-11ee-bd65-e3b07a244498",
+                "msgid": "b7326c40-6ccb-11ee-b8a9-8d3734381433",
+                "status": "successful",
+                "err": None,
+                "errmsg": None
+                        },
+            "responseCode": "OK",
+                    "result": {
+                        "total_pages": total_pages,
+                        "current_page": page_number,
+                        "items_per_page": limit,
+                        "total_items": total_items,
+                        "content": []
+                    }
         }
 
         # Get full personal info.
@@ -219,11 +234,28 @@ async def get_user(
             result_dict['result']['total_items'] = len(filtered_entries)
             result_dict['result']['content'] = filtered_entries[start_index:end_index]
         
+        if result_dict['result']['total_items'] == 0:
+
+            result_dict['params']['status'] = None
+            result_dict['params']['err'] = 'RESOURCE_NOT_FOUND'
+            result_dict['responseCode'] = 'INPUTS_NOT_FOUND'
+            result_dict['params']['status'] = 'Failed'
+            return result_dict
         
-        return result_dict
+        else:
+            result_dict['responseCode'] = 'OK'
+            return result_dict
+
     except Exception as e:
-        print('Exception:', e)
-        raise HTTPException(status_code=400, detail="Unable to process request")     
+
+        result_dict['responseCode'] = 'RESOURCE_NOT_FOUND'
+        result_dict['params']['msgid'] = None
+        result_dict['params']['status'] = None
+        result_dict['params']['err'] = Exception
+        result_dict['params']["errmsg"]: e
+
+        return result_dict
+       #raise HTTPException(status_code=400, detail="Unable to process request")     
 
 if __name__ == "__main__":
 
