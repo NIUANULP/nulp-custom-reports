@@ -136,5 +136,3 @@ def temp_response():
 }
 
     return response
-
-
