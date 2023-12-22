@@ -234,12 +234,11 @@ async def get_user(
             result_dict['result']['total_items'] = len(filtered_entries)
             result_dict['result']['content'] = filtered_entries[start_index:end_index]
         
+        # If Empty.
         if result_dict['result']['total_items'] == 0:
-
-            result_dict['params']['status'] = None
             result_dict['params']['err'] = 'RESOURCE_NOT_FOUND'
-            result_dict['responseCode'] = 'INPUTS_NOT_FOUND'
-            result_dict['params']['status'] = 'Failed'
+            result_dict['responseCode'] = 'Success'
+            result_dict['params']['status'] = 'Success'
             return result_dict
         
         else:
@@ -455,9 +454,9 @@ async def get_user(
         if result_dict['result']['total_items'] == 0:
 
             result_dict['params']['status'] = None
-            result_dict['params']['err'] = 'RESOURCE_NOT_FOUND'
-            result_dict['responseCode'] = 'INPUTS_NOT_FOUND'
-            result_dict['params']['status'] = 'Failed'
+            result_dict['params']['err'] = 'success'
+            result_dict['responseCode'] = 'sucess'
+            result_dict['params']['status'] = 'success'
             return result_dict
         
         else:
@@ -477,4 +476,4 @@ async def get_user(
 
 if __name__ == "__main__":
 
-    uvicorn.run(app, host="127.0.0.1", port=8009)
+    uvicorn.run(app, host="127.0.0.1", port=9009)
