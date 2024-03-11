@@ -1,12 +1,12 @@
 CLUSTER_LINK = localhost
 KEYSPACE = sunbird_courses
 PORT = 9042
-TABLE=user_enrolments
+TABLE = user_enrolments
 
 
 
 USER_INFO_KEYSPACE = sunbird
 USER_INFO_TABLE = user
 
-COURSE_KEYSPACE=sunbird_courses
-COURSE_TABLE=course_batch
+COURSE_KEYSPACE = sunbird_courses
+COURSE_TABLE = course_batch
