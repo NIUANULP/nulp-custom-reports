@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: custom-report
-        image: your-docker-image-name:latest
+        image: customreport:latest
         ports:
         - containerPort: 5000  
         #env:
