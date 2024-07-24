@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: custom-report
-        image: customreport:latest
+        image: customreport:11
         ports:
         - containerPort: 5000  
         #env:
