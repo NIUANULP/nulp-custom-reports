@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: custom-report
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: custom-report
+  template:
+    metadata:
+      labels:
+        app: custom-report
+    spec:
+      containers:
+      - name: custom-report
+        image: your-docker-image-name:latest
+        ports:
+        - containerPort: 5000  
+        #env:
+        #- name: ENV_VAR_NAME  
+        #  value: "value"
