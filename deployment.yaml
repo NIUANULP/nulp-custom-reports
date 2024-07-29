@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: custom-report
 spec:
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
       app: custom-report
@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: custom-report
-        image: customreport:11
+        image: customreports:18
         ports:
         - containerPort: 5000  
         #env:
