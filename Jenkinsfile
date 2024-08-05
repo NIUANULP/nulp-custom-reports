@@ -20,9 +20,13 @@ node('') {
                 commit_hash = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
                 build_tag = sh(script: "echo " + params.github_release_tag.split('/')[-1] + "_" + commit_hash + "_" + env.BUILD_NUMBER, returnStdout: true).trim()
                 echo "build_tag: " + build_tag
-
+                
+                // Define image name and tag
+                def imageName = "${hub_org}/nulp-custom-reports"
+                def imageTag = "${build_tag}"
+                
                 stage('Build') {
-                    sh("bash ./build.sh  ${build_tag} ${env.NODE_NAME} ${hub_org} ${params.buildDockerImage} ${params.buildCdnAssests} ${params.cdnUrl}")
+                    sh "docker build -t ${imageName}:${imageTag} ."
                 }
             }
         }
