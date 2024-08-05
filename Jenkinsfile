@@ -29,6 +29,10 @@ node('') {
                     sh "docker build -t ${imageName}:${imageTag} ."
                     sh "echo {\"imageName\" , \"imageTag\"} > metadata.json"
                 }
+                stage('ArchiveArtifacts') {
+                    archiveArtifacts "metadata.json"
+                    currentBuild.description = "${imageTag}"
+                }                
             }
         }
     }
