@@ -27,7 +27,7 @@ node('') {
                 
                 stage('Build') {
                     sh "docker build -t ${imageName}:${imageTag} ."
-                    sh "echo {\"imageName\" , \"imageTag\" , \"node_name\" : \"$node\"} > metadata.json"
+                    sh "echo {\"imageName\" , \"imageTag\"} > metadata.json"
                 }
             }
         }
