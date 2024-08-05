@@ -1,48 +1,34 @@
-pipeline {
-    agent any
+node('') {
+    try {
+        String ANSI_GREEN = "\u001B[32m"
+        String ANSI_NORMAL = "\u001B[0m"
+        String ANSI_BOLD = "\u001B[1m"
+        String ANSI_RED = "\u001B[31m"
+        String ANSI_YELLOW = "\u001B[33m"
 
-    environment {
-        DOCKER_IMAGE = 'your-docker-image-name'
-        KUBECONFIG_CREDENTIALS_ID = 'kubeconfig'  // Jenkins credential ID for kubeconfig
-        REGISTRY_CREDENTIALS_ID = 'docker-registry'  // Jenkins credential ID for Docker registry
-    }
-
-    stages {
-        stage('Checkout') {
-            steps {
+        ansiColor('xterm') {
+            timestamps {
+                stage('Checkout') {
+                    if (!env.hub_org) {
+                        println(ANSI_BOLD + ANSI_RED + "Uh Oh! Please set a Jenkins environment variable named hub_org with value as registery/sunbidrded" + ANSI_NORMAL)
+                        error 'Please resolve the errors and rerun..'
+                    } else
+                        println(ANSI_BOLD + ANSI_GREEN + "Found environment variable named hub_org with value as: " + hub_org + ANSI_NORMAL)
+                }
+                // cleanWs()
                 checkout scm
-            }
-        }
+                commit_hash = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
+                build_tag = sh(script: "echo " + params.github_release_tag.split('/')[-1] + "_" + commit_hash + "_" + env.BUILD_NUMBER, returnStdout: true).trim()
+                echo "build_tag: " + build_tag
 
-        stage('Build Docker Image') {
-            steps {
-                script {
-                    docker.build("${DOCKER_IMAGE}:${env.BUILD_ID}")
+                stage('Build') {
+                    sh("bash ./build.sh  ${build_tag} ${env.NODE_NAME} ${hub_org} ${params.buildDockerImage} ${params.buildCdnAssests} ${params.cdnUrl}")
                 }
             }
         }
-
-        stage('Push Docker Image') {
-            steps {
-                script {
-                    docker.withRegistry('https://your-registry-url', "${REGISTRY_CREDENTIALS_ID}") {
-                        docker.image("${DOCKER_IMAGE}:${env.BUILD_ID}").push()
-                    }
-                }
-            }
-        }
-
-        stage('Deploy to Kubernetes') {
-            steps {
-                script {
-                    withCredentials([file(credentialsId: "${KUBECONFIG_CREDENTIALS_ID}", variable: 'KUBECONFIG')]) {
-                        sh '''
-                        kubectl apply -f k8s/deployment.yaml
-                        kubectl apply -f k8s/service.yaml
-                        '''
-                    }
-                }
-            }
-        }
+    }
+    catch (err) {
+        currentBuild.result = "FAILURE"
+        throw err
     }
 }
