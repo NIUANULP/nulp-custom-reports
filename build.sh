@@ -8,7 +8,7 @@ node=$3
 org=$4
 
 # Define image name and tag
-imageName="${org}/${name}"
+imageName="${name}"
 imageTag="${build_tag}"
 
 # Build Docker image
