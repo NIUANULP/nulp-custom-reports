@@ -3,7 +3,7 @@
 set -eo pipefail
 
 build_tag=$1
-name=$2
+name=nulp-custom-reports
 node=$3
 org=$4
 
