@@ -29,7 +29,7 @@ node('') {
                     //sh "docker build -t ${imageName}:${imageTag} ."
                     //sh "echo {\"image_name\" : \"${imageName}\", \"image_tag\" : \"${build_tag}\"} > metadata.json"
                     sh('chmod 777 ./build.sh')
-                    sh("./build.sh")
+                    sh("./build.sh ${build_tag} ${"nulp-custom-reports"} ${env.NODE_NAME} ${hub_org}")
                 }
                 stage('ArchiveArtifacts') {
                     archiveArtifacts "metadata.json"
