@@ -8,4 +8,4 @@ node=$3
 org=$4
 
 docker build -t ${imageName}:${imageTag} .
-echo {\"image_name\" : \"${name}\", \"image_tag\" : \"${build_tag}\", \"node_name\" : \"$node\"} > metadata.json
+echo {\"image_name\" : \"${imageName}\", \"image_tag\" : \"${build_tag}\", \"node_name\" : \"$node\"} > metadata.json
