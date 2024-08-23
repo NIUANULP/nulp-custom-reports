@@ -12,7 +12,7 @@ imageName="${name}"
 imageTag="${build_tag}"
 
 # Build Docker image
-docker build -t "${imageName}:${imageTag}" .
+docker build -t "${org}/${imageName}:${imageTag}" .
 
 # Create metadata.json with the relevant details
 echo "{\"image_name\" : \"${imageName}\", \"image_tag\" : \"${imageTag}\", \"node_name\" : \"${node}\"}" > metadata.json
