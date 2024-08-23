@@ -26,8 +26,10 @@ node('') {
                 def imageTag = "${build_tag}"
                 
                 stage('Build') {
-                    sh "docker build -t ${imageName}:${imageTag} ."
-                    sh "echo {\"image_name\" : \"${imageName}\", \"image_tag\" : \"${build_tag}\"} > metadata.json"
+                    //sh "docker build -t ${imageName}:${imageTag} ."
+                    //sh "echo {\"image_name\" : \"${imageName}\", \"image_tag\" : \"${build_tag}\"} > metadata.json"
+                    sh('chmod 777 ./build.sh')
+                    sh("./build.sh ${build_tag} ${env.NODE_NAME} ${hub_org}")
                 }
                 stage('ArchiveArtifacts') {
                     archiveArtifacts "metadata.json"
